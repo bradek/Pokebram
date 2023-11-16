@@ -32,6 +32,9 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    /*I declare RecyclerView for displaying the list of Pokemon,
+    * Adapter for managing the data of the RecyclerView,
+    * And a list to store all the Pokemon items I fetched from pokeapi.*/
     private RecyclerView recyclerView;
     private PokemonListAdapter adapter;
     private List<PokemonListResponse.PokemonListItem> allPokemonListItems = new ArrayList<>();
@@ -39,44 +42,61 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        /*I set the layout of the activity to activity_main.xml*/
         setContentView(R.layout.activity_main);
 
+        /*I link the recyclerView to the RecyclerView in the activity_main.xml.*/
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        /*I set the animation for item changes in the RecyclerView.*/
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+        /*With the ApiManager I create an instance of PokemonApiService.
+        * Then I make a call to fetch the list of Pokemon from pokeapi and a call to the ApiManager for tracking.*/
         PokemonApiService apiService = ApiManager.getPokemonApiService();
         Call<PokemonListResponse> listCall = apiService.getPokemonList();
         ApiManager.addCall(listCall);
 
+        /*I send the network request asynchronously through the enque.*/
         listCall.enqueue(new Callback<PokemonListResponse>() {
+
+            /*The onResponse method is called when a response is received.
+            * If the response is successful, the list of Pokemon gets fetched withe names of the Pokemon from the response.
+            * I add them to the existing list and then check if there are more pages to fetch.*/
             @Override
             public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
                 if (response.isSuccessful()) {
                     PokemonListResponse nextPageResponse = response.body();
                     List<String> nextPagePokemonNames = getPokemonNames(nextPageResponse);
 
-                    // Append the new items to the existing list
+                    /* I append the new items to the existing list.*/
                     allPokemonListItems.addAll(nextPageResponse.getResults());
                     if (adapter != null) {
                         runOnUiThread(() -> adapter.addAll(nextPagePokemonNames));
                     } else {
+
+                        /*I create a new PokemonListAdapter with the name of the Pokemon from the next page.*/
                         adapter = new PokemonListAdapter(nextPagePokemonNames, new PokemonListAdapter.OnItemClickListener() {
+
+                            /*I set an OnItemClickListener to make sure click events can be used for the item.
+                            * When an items is clicked, I fetch and display the details for that specific Pokemon.*/
                             @Override
                             public void onItemClick(String pokemonName) {
-                                // Handle item click event
+                                /*I handle item click event*/
                                 Log.d("PokemonListAdapter", "Clicked on: " + pokemonName);
-                                // Fetch and display details for the clicked Pokémon
+                                /*I fetch and show details for the clicked Pokemon*/
                                 fetchPokemonDetails(getPokemonUrlFromList(pokemonName));
                             }
                         });
+                        /*I set the adapter to the RecyclerView.*/
                         recyclerView.setAdapter(adapter);
                     }
 
-                    // Check if there are more pages
+                    /*I check if there are more pages of Pokemon.
+                    * (Pages of 20 pokemon.)*/
                     if (nextPageResponse.getNext() != null) {
-                        // Fetch the next page recursively
+                        /*By using the getNext() method in the fetchNextPage, the next 20 pokemon are being fetched.*/
                         fetchNextPage(nextPageResponse.getNext());
                     }
                 } else {
@@ -84,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            /*When a network failure occures, a toast message is being shown to inform about the API failure.*/
             @Override
             public void onFailure(Call<PokemonListResponse> call, Throwable t) {
                 showToast("API connection failed: " + t.getMessage());

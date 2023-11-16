@@ -3,4 +3,5 @@
     <string name="pokemon_image">YourImageDescription</string>
     <string name="height_placeholder">Height: %s</string>
     <string name="weight_placeholder">Weight: %s</string>
+    <string name="return_label">Return</string>
 </resources>
