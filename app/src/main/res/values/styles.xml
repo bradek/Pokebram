@@ -1,8 +1,11 @@
+<!-- res/values/styles.xml -->
 <resources>
-
     <style name="PokemonNameText">
         <item name="android:textSize">18sp</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColor">@color/modern_blue</item>
     </style>
 
+    <color name="pokemon_yellow">#FFE082</color> <!-- Light Yellow 500 -->
+    <color name="pokemon_blue">#5C6BC0</color> <!-- Indigo 400 -->
+    <color name="modern_blue">#3F51B5</color> <!-- Indigo 500 -->
 </resources>

@@ -5,4 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:textSize="18sp"
-    android:padding="10dp"/>
+    android:padding="10dp"
+    android:background="@color/pokemon_yellow"
+    android:textColor="@color/pokemon_blue"
+    android:fontFamily="sans-serif-condensed"
+    android:textStyle="bold"/>

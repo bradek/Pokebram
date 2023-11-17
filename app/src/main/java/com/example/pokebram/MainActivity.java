@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private PokemonListAdapter adapter;
     private List<PokemonListResponse.PokemonListItem> allPokemonListItems = new ArrayList<>();
+    private List<Integer> pokedexNumbers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,48 +70,62 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     PokemonListResponse nextPageResponse = response.body();
                     List<String> nextPagePokemonNames = getPokemonNames(nextPageResponse);
+                    List<Integer> nextPagePokedexNumbers = getPokedexNumbers(nextPageResponse); // Get the Pokedex numbers
 
-                    /* I append the new items to the existing list.*/
+                    // Append the new items to the existing list
                     allPokemonListItems.addAll(nextPageResponse.getResults());
-                    if (adapter != null) {
-                        runOnUiThread(() -> adapter.addAll(nextPagePokemonNames));
-                    } else {
+                    pokedexNumbers.addAll(nextPagePokedexNumbers); // Add the Pokedex numbers to the existing list
 
-                        /*I create a new PokemonListAdapter with the name of the Pokemon from the next page.*/
-                        adapter = new PokemonListAdapter(nextPagePokemonNames, new PokemonListAdapter.OnItemClickListener() {
+                    // Ensure that this part is executed on the UI thread
+                    runOnUiThread(() -> {
+                        // Append the new items to the existing list
+                        if (adapter != null) {
+                            adapter.addAll(nextPagePokemonNames, nextPagePokedexNumbers); // Pass the Pokedex numbers to addAll
+                        } else {
+                            adapter = new PokemonListAdapter(nextPagePokemonNames, nextPagePokedexNumbers, new PokemonListAdapter.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(String pokemonName) {
+                                    // Handle item click event
+                                    Log.d("PokemonListAdapter", "Clicked on: " + pokemonName);
+                                    // Fetch and display details for the clicked Pokémon
+                                    fetchPokemonDetails(getPokemonUrlFromList(pokemonName));
+                                }
+                            });
+                            recyclerView.setAdapter(adapter);
+                        }
 
-                            /*I set an OnItemClickListener to make sure click events can be used for the item.
-                            * When an items is clicked, I fetch and display the details for that specific Pokemon.*/
-                            @Override
-                            public void onItemClick(String pokemonName) {
-                                /*I handle item click event*/
-                                Log.d("PokemonListAdapter", "Clicked on: " + pokemonName);
-                                /*I fetch and show details for the clicked Pokemon*/
-                                fetchPokemonDetails(getPokemonUrlFromList(pokemonName));
-                            }
-                        });
-                        /*I set the adapter to the RecyclerView.*/
-                        recyclerView.setAdapter(adapter);
-                    }
-
-                    /*I check if there are more pages of Pokemon.
-                    * (Pages of 20 pokemon.)*/
-                    if (nextPageResponse.getNext() != null) {
-                        /*By using the getNext() method in the fetchNextPage, the next 20 pokemon are being fetched.*/
-                        fetchNextPage(nextPageResponse.getNext());
-                    }
+                        // Check if there are more pages
+                        if (nextPageResponse.getNext() != null) {
+                            // Fetch the next page recursively
+                            fetchNextPage(nextPageResponse.getNext());
+                        }
+                    });
                 } else {
                     showToast("API connection failed for next page");
                 }
             }
-
-            /*When a network failure occures, a toast message is being shown to inform about the API failure.*/
             @Override
             public void onFailure(Call<PokemonListResponse> call, Throwable t) {
                 showToast("API connection failed: " + t.getMessage());
             }
-        });
-    }
+
+
+            /*I extract and return the Pokedex numbers (ID's).
+            * I extract them from PokemonListResponse.
+            * The parameters are representing the response of pokeapi.
+            * I return a list of integers, which are these Pokedex numbers (ID's), I extracted earlier.*/
+            private List<Integer> getPokedexNumbers(PokemonListResponse pokemonListResponse) {
+                List<PokemonListResponse.PokemonListItem> pokemonListItems = pokemonListResponse.getResults();
+                List<Integer> pokedexNumbers = new ArrayList<>();
+                for (PokemonListResponse.PokemonListItem item : pokemonListItems) {
+                    String url = item.getUrl();
+                    String[] urlParts = url.split("/");
+                    String idString = urlParts[urlParts.length - 1];
+                    int id = Integer.parseInt(idString);
+                    pokedexNumbers.add(id);
+                }
+                return pokedexNumbers;
+            }
 
     private void fetchPokemonDetails(String pokemonUrl) {
         PokemonApiService apiService = ApiManager.getPokemonApiService();
@@ -160,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     PokemonListResponse nextPageResponse = response.body();
                     List<String> nextPagePokemonNames = getPokemonNames(nextPageResponse);
+                    List<Integer> nextPagePokedexNumbers = getPokedexNumbers(nextPageResponse); // Get the Pokedex numbers
 
                     // Append the new items to the existing list
                     allPokemonListItems.addAll(nextPageResponse.getResults());
@@ -168,9 +184,9 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         // Append the new items to the existing list
                         if (adapter != null) {
-                            adapter.addAll(nextPagePokemonNames);
+                            adapter.addAll(nextPagePokemonNames, nextPagePokedexNumbers);
                         } else {
-                            adapter = new PokemonListAdapter(nextPagePokemonNames, new PokemonListAdapter.OnItemClickListener() {
+                            adapter = new PokemonListAdapter(nextPagePokemonNames, nextPagePokedexNumbers, new PokemonListAdapter.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(String pokemonName) {
                                     // Handle item click event
@@ -253,6 +269,9 @@ public class MainActivity extends AppCompatActivity {
         runOnUiThread(() -> Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show());
     }
 
+
+});
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();

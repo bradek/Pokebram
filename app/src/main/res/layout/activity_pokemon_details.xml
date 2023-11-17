@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/pokemon_yellow">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,13 +17,17 @@
             android:text="@string/return_label"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginBottom="10dp"
+            android:background="@color/pokemon_blue"
+            android:textColor="@color/pokemon_yellow"/>
 
         <TextView
             android:id="@+id/textViewPokemonName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="24sp"
+            android:textColor="@color/pokemon_blue"
+            android:fontFamily="sans-serif-condensed"
             android:textStyle="bold"/>
 
         <TextView
@@ -30,14 +35,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:padding="5dp"/>
+            android:padding="5dp"
+            android:textColor="@color/pokemon_blue"
+            android:fontFamily="sans-serif-condensed"/>
 
         <TextView
             android:id="@+id/textViewPokemonTypes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:padding="5dp"/>
+            android:padding="5dp"
+            android:textColor="@color/pokemon_blue"
+            android:fontFamily="sans-serif-condensed"/>
 
         <ImageView
             android:id="@+id/imageViewPokemon"
@@ -53,12 +62,16 @@
             android:id="@+id/textViewHeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:textColor="@color/pokemon_blue"
+            android:fontFamily="sans-serif-condensed"/>
 
         <TextView
             android:id="@+id/textViewWeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"/>
+            android:textSize="18sp"
+            android:textColor="@color/pokemon_blue"
+            android:fontFamily="sans-serif-condensed"/>
     </LinearLayout>
 </ScrollView>

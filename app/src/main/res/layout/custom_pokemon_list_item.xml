@@ -1,18 +1,29 @@
+<!-- res/layout/custom_pokemon_list_item.xml -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:gravity="center">
-
+    android:gravity="center"
+    android:background="@color/pokemon_yellow">
 
     <ImageView
         android:id="@+id/imageViewPokemon"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:src="@drawable/ic_pokemon_placeholder"
+        android:padding="16dp"
         android:contentDescription="@string/pokemon_image"/>
+
+    <TextView
+        android:id="@+id/textViewPokedexNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:paddingTop="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        style="@style/PokemonNameText"/>
 
     <TextView
         android:id="@+id/textViewPokemonName"
@@ -20,5 +31,7 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:paddingTop="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         style="@style/PokemonNameText"/>
 </LinearLayout>
