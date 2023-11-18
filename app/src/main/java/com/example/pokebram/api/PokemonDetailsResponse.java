@@ -29,6 +29,9 @@ public class PokemonDetailsResponse implements Serializable{
     @SerializedName("weight")
     private int weight;
 
+    @SerializedName("stats")
+    private List<Stat> stats;
+
     public int getId() {
         return id;
     }
@@ -82,6 +85,35 @@ public class PokemonDetailsResponse implements Serializable{
 
         public String getFrontDefault() {
             return frontDefault;
+        }
+    }
+
+    public List<Stat> getStats() {
+        return stats;
+    }
+
+    public static class Stat implements Serializable {
+        @SerializedName("base_stat")
+        private int baseStat;
+
+        @SerializedName("stat")
+        private StatName statName;
+
+        public int getBaseStat() {
+            return baseStat;
+        }
+
+        public StatName getStatName() {
+            return statName;
+        }
+
+        public static class StatName implements Serializable {
+            @SerializedName("name")
+            private String name;
+
+            public String getName() {
+                return name;
+            }
         }
     }
 }

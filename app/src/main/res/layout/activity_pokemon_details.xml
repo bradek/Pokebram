@@ -73,5 +73,24 @@
             android:textSize="18sp"
             android:textColor="@color/pokemon_blue"
             android:fontFamily="sans-serif-condensed"/>
+
+        <LinearLayout
+            android:id="@+id/flavorTextContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/red_border"
+            android:layout_marginTop="8dp">
+            <!-- The flavor text TextView will be added here -->
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/statsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="16dp">
+            <!-- The stat TextViews will be added here -->
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

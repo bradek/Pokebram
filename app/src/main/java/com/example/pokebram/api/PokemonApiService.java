@@ -18,4 +18,7 @@ public interface PokemonApiService {
 
     @GET
     Call<PokemonListResponse> getNextPokemonList(@Url String url);
+
+    @GET("pokemon-species/{id}")
+    Call<PokemonSpeciesResponse> getPokemonSpecies(@Path("id") int id);
 }

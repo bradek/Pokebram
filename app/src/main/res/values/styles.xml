@@ -4,6 +4,14 @@
         <item name="android:textSize">18sp</item>
         <item name="android:textColor">@color/modern_blue</item>
     </style>
+    <style name="BaseStatText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/modern_blue</item>
+    </style>
+    <style name="BaseStatTitleText" parent="BaseStatText">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 
     <color name="pokemon_yellow">#FFE082</color> <!-- Light Yellow 500 -->
     <color name="pokemon_blue">#5C6BC0</color> <!-- Indigo 400 -->
