@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.pokebram.R;
+import com.example.pokebram.api.PokemonListResponse;
 
 import java.util.List;
 
@@ -88,6 +89,12 @@ public class PokemonListAdapter extends RecyclerView.Adapter<PokemonListAdapter.
     public void addAll(List<String> newPokemonNames, List<Integer> newPokedexNumbers) { // New parameter for the Pokedex numbers
         pokemonNames.addAll(newPokemonNames);
         pokedexNumbers.addAll(newPokedexNumbers); // Add the new Pokedex numbers
+        notifyDataSetChanged();
+    }
+
+    /*This method updates the list of Pokemon in the adapter with a new list and refreshes the view.*/
+    public void updateList(List<String> newList) {
+        this.pokemonNames = newList;
         notifyDataSetChanged();
     }
 }

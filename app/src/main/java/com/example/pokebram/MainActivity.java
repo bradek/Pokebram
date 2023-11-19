@@ -7,6 +7,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -52,6 +53,37 @@ public class MainActivity extends AppCompatActivity {
 
         /*I set the animation for item changes in the RecyclerView.*/
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        // Assuming you have a SearchView in your layout with the id "searchView"
+        SearchView searchView = findViewById(R.id.searchView);
+
+        /*I make a setOnQueryText listener on the SearchView.
+        * This way, through a query the attribute you're asking for can be loaded.*/
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            /*This method gets called when the user submits the query in the search bar.*/
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            /*I call this method when the query text is changed.*/
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                List<String> filteredList = new ArrayList<>();
+                /*I loop through all the pokemon in the original list.*/
+                for (PokemonListResponse.PokemonListItem pokemon : allPokemonListItems) {
+                    /*If the Pokemon's name contains the new text, the editted list will get made by what has been selected.*/
+                    if (pokemon.getName().toLowerCase().contains(newText.toLowerCase())) {
+                        filteredList.add(pokemon.getName());
+                    }
+                }
+
+                adapter.updateList(filteredList);
+                return false;
+            }
+        });
+
 
         /*With the ApiManager I create an instance of PokemonApiService.
         * Then I make a call to fetch the list of Pokemon from pokeapi and a call to the ApiManager for tracking.*/
