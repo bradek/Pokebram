@@ -32,6 +32,9 @@ public class PokemonDetailsResponse implements Serializable{
     @SerializedName("stats")
     private List<Stat> stats;
 
+    @SerializedName("abilities")
+    private List<Ability> abilities; // New field for abilities
+
     public int getId() {
         return id;
     }
@@ -56,9 +59,14 @@ public class PokemonDetailsResponse implements Serializable{
         return weight;
     }
 
-    /*I made a nested class PokemonType within the PokemonDetailsResponse class.
-    * This nested class has even another nested class being 'Type'.
-    * I use it as a data model that maps the JSON response from the PokeAPI to a Java object.*/
+    public List<Stat> getStats() {
+        return stats;
+    }
+
+    public List<Ability> getAbilities() {
+        return abilities;
+    }
+
     public static class PokemonType implements Serializable {
         @SerializedName("type")
         private Type type;
@@ -77,8 +85,6 @@ public class PokemonDetailsResponse implements Serializable{
         }
     }
 
-    /*I made a class for the sprites.
-    * It has a getter as well.*/
     public static class Sprites implements Serializable {
         @SerializedName("front_default")
         private String frontDefault;
@@ -86,10 +92,6 @@ public class PokemonDetailsResponse implements Serializable{
         public String getFrontDefault() {
             return frontDefault;
         }
-    }
-
-    public List<Stat> getStats() {
-        return stats;
     }
 
     public static class Stat implements Serializable {
@@ -108,6 +110,27 @@ public class PokemonDetailsResponse implements Serializable{
         }
 
         public static class StatName implements Serializable {
+            @SerializedName("name")
+            private String name;
+
+            public String getName() {
+                return name;
+            }
+        }
+    }
+
+    /*I made a nested class Ability within the PokemonDetailsResponse class.
+     * This nested class has even another nested class being 'AbilityDetails'.
+     * I use it as a data model that maps the JSON response from the PokeAPI to a Java object.*/
+    public static class Ability implements Serializable {
+        @SerializedName("ability")
+        private AbilityDetails ability;
+
+        public AbilityDetails getAbility() {
+            return ability;
+        }
+
+        public static class AbilityDetails implements Serializable {
             @SerializedName("name")
             private String name;
 

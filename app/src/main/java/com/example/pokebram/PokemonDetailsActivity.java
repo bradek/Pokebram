@@ -39,6 +39,8 @@ public class PokemonDetailsActivity extends AppCompatActivity {
     private ImageView imageViewPokemon;
     private TextView textViewHeight;
     private TextView textViewWeight;
+    // Declare the TextView for Pokemon abilities
+    private TextView textViewPokemonAbilities;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,8 @@ public class PokemonDetailsActivity extends AppCompatActivity {
         textViewHeight = findViewById(R.id.textViewHeight);
         textViewWeight = findViewById(R.id.textViewWeight);
         LinearLayout statsContainer = findViewById(R.id.statsContainer);
+        // Inside onCreate method
+        textViewPokemonAbilities = findViewById(R.id.textViewPokemonAbilities); // Replace with the actual ID of the TextView in your XML layout
 
         /*I make a new intent and call getIntent() to be the intent.
          * I use it to receive the PokemonDetailsResponse object.
@@ -106,6 +110,16 @@ public class PokemonDetailsActivity extends AppCompatActivity {
                 textViewWeight.setText("Weight: " + detailsResponse.getWeight() / 10.0 + " kg");
                 /*I retrieve the stats.*/
                 List<PokemonDetailsResponse.Stat> stats = detailsResponse.getStats();
+
+                // After receiving the PokemonDetailsResponse object
+                List<PokemonDetailsResponse.Ability> abilities = detailsResponse.getAbilities();
+                List<String> abilityNames = new ArrayList<>();
+                for (PokemonDetailsResponse.Ability ability : abilities) {
+                    if (ability != null && ability.getAbility() != null && ability.getAbility().getName() != null) {
+                        abilityNames.add(ability.getAbility().getName());
+                    }
+                }
+                textViewPokemonAbilities.setText("Abilities: " + String.join(", ", abilityNames));
 
                 // Create a TextView for the title 'Base stats'
                 TextView titleView = new TextView(this);

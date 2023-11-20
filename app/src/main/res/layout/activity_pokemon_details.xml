@@ -59,6 +59,16 @@
             android:contentDescription="@string/pokemon_image"/>
 
         <TextView
+            android:id="@+id/textViewPokemonAbilities"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/pokemon_blue"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-condensed"/>
+        <!-- Add any other style attributes that your other TextViews have -->
+        />
+
+        <TextView
             android:id="@+id/textViewHeight"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
