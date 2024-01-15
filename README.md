@@ -14,11 +14,11 @@ The code is made by him, with the help of some tools, dependencies and documenta
 * _!!!Local data storing has been attempted, models and dao's have been made, though the application is still not working without internet connection.!!!_
 
 ## Sources for information and documentation
-* [Android Documentation](https://developer.android.com/docs "Android docs")
+* [Android Documentation](https://developer.android.com/docs "Android docs")<br />
 _For overall Java documentation, android information and Room database info._
-* [Square Github](https://square.github.io/retrofit/ "Retrofit Documentation")
+* [Square Github](https://square.github.io/retrofit/ "Retrofit Documentation")<br />
 _For documentation on how to use retrofit, a dependency whom makes it easier to use JSON._
-* [PokéApi Documentation](https://pokeapi.co/docs/v2 "PokéApi Documentation")
+* [PokéApi Documentation](https://pokeapi.co/docs/v2 "PokéApi Documentation")<br />
 _For a better understanding about the possibilities of PokéApi. It came in handy for the information regarding pagination._
 
 ## AI Tools
