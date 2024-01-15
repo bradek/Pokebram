@@ -11,6 +11,8 @@ import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
+
 import android.content.Intent;
 import android.net.Uri;
 
@@ -19,6 +21,8 @@ import com.example.pokebram.api.ApiManager;
 import com.example.pokebram.api.PokemonApiService;
 import com.example.pokebram.api.PokemonListResponse;
 import com.example.pokebram.api.PokemonDetailsResponse;
+import com.example.pokebram.database.Pokemon;
+import com.example.pokebram.database.PokemonDatabase;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;
@@ -33,6 +37,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private PokemonDatabase db;
     /*I declare RecyclerView for displaying the list of Pokemon,
     * Adapter for managing the data of the RecyclerView,
     * And a list to store all the Pokemon items I fetched from pokeapi.*/
@@ -46,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         /*I set the layout of the activity to activity_main.xml*/
         setContentView(R.layout.activity_main);
+
+        /*I create an instance of the Room database.*/
+        db = Room.databaseBuilder(getApplicationContext(),
+                PokemonDatabase.class, "pokemon-database").build();
 
         /*I link the recyclerView to the RecyclerView in the activity_main.xml.*/
         recyclerView = findViewById(R.id.recyclerView);
@@ -102,40 +111,52 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful()) {
                     PokemonListResponse nextPageResponse = response.body();
                     List<String> nextPagePokemonNames = getPokemonNames(nextPageResponse);
-                    List<Integer> nextPagePokedexNumbers = getPokedexNumbers(nextPageResponse); // Get the Pokedex numbers
+                    List<Integer> nextPagePokedexNumbers = getPokedexNumbers(nextPageResponse);
 
-                    // Append the new items to the existing list
+                    /*I append the new items to the existing list*/
                     allPokemonListItems.addAll(nextPageResponse.getResults());
-                    pokedexNumbers.addAll(nextPagePokedexNumbers); // Add the Pokedex numbers to the existing list
+                    pokedexNumbers.addAll(nextPagePokedexNumbers);
 
-                    // Ensure that this part is executed on the UI thread
+                    /*I ensure that this part is executed on the UI thread*/
+                    List<Pokemon> pokemons = new ArrayList<>();
+                    for (PokemonListResponse.PokemonListItem item : allPokemonListItems) {
+                        Pokemon pokemon = new Pokemon();
+                        pokemon.id = getPokemonIdFromUrl(item.getUrl());
+                        pokemon.name = item.getName();
+                        pokemons.add(pokemon);
+                    }
+
+                    /*I insert the Pokemon into the database*/
+                    new Thread(() -> {
+                        db.pokemonDao().insertAll(pokemons.toArray(new Pokemon[0]));
+                    }).start();
+
+                    /*I ensure that this part is executed on the UI thread*/
                     runOnUiThread(() -> {
-                        // Append the new items to the existing list
                         if (adapter != null) {
-                            adapter.addAll(nextPagePokemonNames, nextPagePokedexNumbers); // Pass the Pokedex numbers to addAll
+                            adapter.addAll(nextPagePokemonNames, nextPagePokedexNumbers);
                         } else {
                             adapter = new PokemonListAdapter(nextPagePokemonNames, nextPagePokedexNumbers, new PokemonListAdapter.OnItemClickListener() {
+                                // I handle item click event
                                 @Override
                                 public void onItemClick(String pokemonName) {
-                                    // Handle item click event
                                     Log.d("PokemonListAdapter", "Clicked on: " + pokemonName);
-                                    // Fetch and display details for the clicked Pokémon
                                     fetchPokemonDetails(getPokemonUrlFromList(pokemonName));
                                 }
                             });
                             recyclerView.setAdapter(adapter);
                         }
 
-                        // Check if there are more pages
                         if (nextPageResponse.getNext() != null) {
-                            // Fetch the next page recursively
                             fetchNextPage(nextPageResponse.getNext());
                         }
                     });
                 } else {
+                    /*I show a TOAST-message if it fails.*/
                     showToast("API connection failed for next page");
                 }
             }
+            /*I handle the failure of the API call*/
             @Override
             public void onFailure(Call<PokemonListResponse> call, Throwable t) {
                 showToast("API connection failed: " + t.getMessage());
@@ -159,15 +180,18 @@ public class MainActivity extends AppCompatActivity {
                 return pokedexNumbers;
             }
 
+            /*I extract and return the Pokemon names.*/
     private void fetchPokemonDetails(String pokemonUrl) {
         PokemonApiService apiService = ApiManager.getPokemonApiService();
         int pokemonId = getPokemonIdFromUrl(pokemonUrl);
 
-        // Log the extracted ID for debugging
+        /*I log the extracted ID for debugging*/
         Log.d("MainActivity", "Pokemon ID for details: " + pokemonId);
 
+        /*I make the API call to fetch the details.*/
         Call<PokemonDetailsResponse> detailsCall = apiService.getPokemonDetails(String.valueOf(pokemonId));
 
+        /*I send the network request asynchronously through the enque.*/
         detailsCall.enqueue(new Callback<PokemonDetailsResponse>() {
             @Override
             public void onResponse(Call<PokemonDetailsResponse> call, Response<PokemonDetailsResponse> response) {
@@ -176,17 +200,19 @@ public class MainActivity extends AppCompatActivity {
 
                     // Handle the detailsResponse based on your requirements
                     // For example, you might start a new activity to display details
-
                     Intent intent = new Intent(MainActivity.this, PokemonDetailsActivity.class);
                     intent.putExtra("pokemonDetails", (Serializable) detailsResponse);
                     startActivity(intent);
 
-                } else {
+                }
+                /*I show a TOAST-message if it fails.*/
+                else {
                     showToast("API connection failed for Pokemon details");
                     Log.e("MainActivity", "API connection failed for Pokemon details");
                 }
             }
 
+            /*I handle the failure of the API call*/
             @Override
             public void onFailure(Call<PokemonDetailsResponse> call, Throwable t) {
                 showToast("API connection failed for Pokemon details");
@@ -195,12 +221,14 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*I fetch the next page (next 20 pokémon => Pagination).*/
     private void fetchNextPage(String nextPageUrl) {
         Log.d("NextPage", "Next Page URL: " + nextPageUrl);
 
         PokemonApiService apiService = ApiManager.getPokemonApiService();
         Call<PokemonListResponse> nextPageCall = apiService.getNextPokemonList(nextPageUrl);
 
+        /*I send the network request asynchronously through the enque.*/
         nextPageCall.enqueue(new Callback<PokemonListResponse>() {
             @Override
             public void onResponse(Call<PokemonListResponse> call, Response<PokemonListResponse> response) {
@@ -209,16 +237,19 @@ public class MainActivity extends AppCompatActivity {
                     List<String> nextPagePokemonNames = getPokemonNames(nextPageResponse);
                     List<Integer> nextPagePokedexNumbers = getPokedexNumbers(nextPageResponse); // Get the Pokedex numbers
 
-                    // Append the new items to the existing list
+                    /* I append the new items to the existing list*/
                     allPokemonListItems.addAll(nextPageResponse.getResults());
 
-                    // Ensure that this part is executed on the UI thread
+                    /*I ensure that this part is executed on the UI thread*/
                     runOnUiThread(() -> {
-                        // Append the new items to the existing list
+                        /*I append the new items to the existing list.*/
                         if (adapter != null) {
                             adapter.addAll(nextPagePokemonNames, nextPagePokedexNumbers);
-                        } else {
+                        }
+                        /*I create a new adapter if there is none.*/
+                        else {
                             adapter = new PokemonListAdapter(nextPagePokemonNames, nextPagePokedexNumbers, new PokemonListAdapter.OnItemClickListener() {
+                                /*I handle item click event.*/
                                 @Override
                                 public void onItemClick(String pokemonName) {
                                     // Handle item click event
@@ -230,17 +261,20 @@ public class MainActivity extends AppCompatActivity {
                             recyclerView.setAdapter(adapter);
                         }
 
-                        // Check if there are more pages
+                        /*I check if there are more pages to fetch.*/
                         if (nextPageResponse.getNext() != null) {
-                            // Fetch the next page recursively
+                            /*I fetch the next page.*/
                             fetchNextPage(nextPageResponse.getNext());
                         }
                     });
-                } else {
+                }
+                /*I show a TOAST-message if it fails.*/
+                else {
                     showToast("API connection failed for next page");
                 }
             }
 
+            /*I handle the failure of the API call*/
             @Override
             public void onFailure(Call<PokemonListResponse> call, Throwable t) {
                 showToast("API connection failed for next page");
@@ -248,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /*I extract and return the Pokemon names.*/
     private String getPokemonUrlFromList(String pokemonName) {
         for (PokemonListResponse.PokemonListItem item : allPokemonListItems) {
             if (item.getName().equals(pokemonName)) {
@@ -259,24 +294,26 @@ public class MainActivity extends AppCompatActivity {
 
     private int getPokemonIdFromUrl(String url) {
         try {
-            // Parse the URL
+            /*I parse the URL*/
             Uri uri = Uri.parse(url);
-            // Get the last path segment, which should be the Pokémon name
+            /* I get the last path segment, which should be the Pokémon name.*/
             String pokemonName = uri.getLastPathSegment();
-            // Log the URL and the extracted name
+            /*I log the URL and the extracted Pokémon name for debugging.*/
             Log.d("MainActivity", "URL: " + url);
             Log.d("MainActivity", "Extracted Pokemon Name: " + pokemonName);
 
-            // Extract the numeric part of the Pokemon name
+            /*I extract the numeric part of the Pokemon name.*/
             String numericPart = pokemonName.replaceAll("[^0-9]", "");
 
             if (!numericPart.isEmpty()) {
-                // Log the extracted numeric part
+                /* I log the extracted numeric part.*/
                 Log.d("MainActivity", "Extracted Numeric Part from Name: " + numericPart);
 
-                // Parse the Pokémon ID as an integer and return it
+                /*I return the extracted numeric part as an integer.*/
                 return Integer.parseInt(numericPart);
-            } else {
+            }
+            /*I return -1 if the extraction fails.*/
+            else {
                 // Log an error and return a default value or handle it as needed
                 Log.e("MainActivity", "Invalid Pokemon Name format: " + pokemonName);
                 return -1; // or any default value that makes sense in your case
@@ -288,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*I extract and return the Pokemon names.*/
     private List<String> getPokemonNames(PokemonListResponse pokemonListResponse) {
         List<PokemonListResponse.PokemonListItem> pokemonListItems = pokemonListResponse.getResults();
         List<String> pokemonNames = new ArrayList<>();
@@ -304,6 +342,7 @@ public class MainActivity extends AppCompatActivity {
 
 });
     }
+    /*I cancel all pending API calls when the activity is destroyed.*/
     @Override
     protected void onDestroy() {
         super.onDestroy();

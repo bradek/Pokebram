@@ -8,8 +8,8 @@ import java.util.List;
 
 public class ApiManager {
 
-    /*This is the base URL of the api.
-    * The api I'm using is pokeapi.*/
+    /*I'm making the BASE_URL, which links to the location of the PokéApi.
+     * As the string is a constant that I won't change, I decided to amke it final.*/
     private static final String BASE_URL = "https://pokeapi.co/api/v2/";
 
     /*I'm building a new Retrofit.

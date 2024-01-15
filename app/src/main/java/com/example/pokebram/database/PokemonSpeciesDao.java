@@ -1,0 +1,16 @@
+package com.example.pokebram.database;
+
+import androidx.room.Dao;
+import androidx.room.Insert;
+import androidx.room.Query;
+
+import java.util.List;
+
+@Dao
+public interface PokemonSpeciesDao {
+    @Query("SELECT * FROM PokemonSpecies")
+    List<PokemonSpecies> getAll();
+
+    @Insert
+    void insertAll(PokemonSpecies... pokemonSpecies);
+}

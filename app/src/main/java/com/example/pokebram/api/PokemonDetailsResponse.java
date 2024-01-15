@@ -109,6 +109,9 @@ public class PokemonDetailsResponse implements Serializable{
             return statName;
         }
 
+        /*I make a nested class 'StatName' that is used as a data model.
+        This data model maps the JSON response from PokeAPI to a Java object.
+        To be able to allow instances of the class to convert to bytes, I implement Serializable.*/
         public static class StatName implements Serializable {
             @SerializedName("name")
             private String name;
