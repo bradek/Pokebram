@@ -22,7 +22,7 @@ _For documentation on how to use retrofit, a dependency whom makes it easier to 
 _For a better understanding about the possibilities of PokéApi. It came in handy for the information regarding pagination._
 
 ## AI Tools
-* `[Github Copilot](https://github.com/features/copilot "Github Copilot")
+* `[Github Copilot](https://github.com/features/copilot "Github Copilot")<br />
 _I used Github Copilot for generating some of the models and DAO's (Database Objects.)_
 _I also used Github Copilot for fixing some errors and issues and to detect irregularities._
 _Most of the logging and error handling has also been generated._
